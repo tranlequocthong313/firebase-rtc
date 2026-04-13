@@ -34,6 +34,10 @@ async function createRoom() {
 
   registerPeerConnectionListeners();
 
+  localStream.getTracks().forEach((track) => {
+    peerConnection.addTrack(track, localStream);
+  });
+
   // Add code for creating a room here
   const offer = await peerConnection.createOffer();
   await peerConnection.setLocalDescription(offer);
@@ -48,10 +52,6 @@ async function createRoom() {
   const roomId = roomRef.id;
   document.querySelector("#currentRoom").innerText =
     `Current room is ${roomId} - You are the caller!`;
-
-  localStream.getTracks().forEach((track) => {
-    peerConnection.addTrack(track, localStream);
-  });
 
   peerConnection.addEventListener("track", (event) => {
     console.log("Got remote track:", event.streams[0]);
@@ -141,8 +141,10 @@ async function collectIceCandidates(
 
   peerConnection.addEventListener("icecandidate", (event) => {
     if (event.candidate) {
-      const json = event.candidate.toJSON();
-      candidatesCollection.add(json);
+      console.log("New ICE candidate:", event.candidate.candidate);
+      candidatesCollection.add(event.candidate.toJSON());
+    } else {
+      console.log("All ICE candidates gathered");
     }
   });
 
@@ -228,7 +230,7 @@ function registerPeerConnectionListeners() {
     console.log(`Signaling state change: ${peerConnection.signalingState}`);
   });
 
-  peerConnection.addEventListener("iceconnectionstatechange ", () => {
+  peerConnection.addEventListener("iceconnectionstatechange", () => {
     console.log(
       `ICE connection state change: ${peerConnection.iceConnectionState}`,
     );
