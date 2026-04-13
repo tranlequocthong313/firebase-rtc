@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/webrtc/FirebaseRTC#readme",
   "devDependencies": {
-    "firebase-tools": "^15.14.0"
+    "firebase-tools": "^15.14.0",
+    "live-server": "^1.2.2"
   }
 }
