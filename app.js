@@ -34,6 +34,14 @@ async function createRoom() {
 
   registerPeerConnectionListeners();
 
+  peerConnection.addEventListener("track", (event) => {
+    console.log("Got remote track:", event.streams[0]);
+    event.streams[0].getTracks().forEach((track) => {
+      console.log("Add a track to the remoteStream:", track);
+      remoteStream.addTrack(track);
+    });
+  });
+
   localStream.getTracks().forEach((track) => {
     peerConnection.addTrack(track, localStream);
   });
@@ -49,6 +57,13 @@ async function createRoom() {
     },
   };
   const roomRef = await db.collection("rooms").add(roomWithOffer);
+  await collectIceCandidates(
+    roomRef,
+    peerConnection,
+    "callerCandidates",
+    "calleeCandidates",
+  );
+
   const roomId = roomRef.id;
   document.querySelector("#currentRoom").innerText =
     `Current room is ${roomId} - You are the caller!`;
@@ -70,8 +85,6 @@ async function createRoom() {
       await peerConnection.setRemoteDescription(answer);
     }
   });
-
-  collectIceCandidates(roomRef, peerConnection, "host-a", "host-b");
 }
 
 function joinRoom() {
@@ -102,6 +115,14 @@ async function joinRoomById(roomId) {
     console.log("Create PeerConnection with configuration: ", configuration);
     peerConnection = new RTCPeerConnection(configuration);
     registerPeerConnectionListeners();
+
+    await collectIceCandidates(
+      roomRef,
+      peerConnection,
+      "calleeCandidates",
+      "callerCandidates",
+    );
+
     localStream.getTracks().forEach((track) => {
       peerConnection.addTrack(track, localStream);
     });
@@ -126,8 +147,6 @@ async function joinRoomById(roomId) {
       },
     };
     await roomRef.update(roomWithAnswer);
-
-    collectIceCandidates(roomRef, peerConnection, "host-b", "host-a");
   }
 }
 
