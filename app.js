@@ -6,6 +6,14 @@ const configuration = {
     {
       urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"],
     },
+    {
+      urls: [
+        "turn:free.expressturn.com:3478?transport=udp",
+        "turn:free.expressturn.com:3478?transport=tcp",
+      ],
+      username: "000000002091449903",
+      credential: "C5479TeUvxDgZEWWnJy3SwFHqos=",
+    },
   ],
   iceCandidatePoolSize: 10,
 };
